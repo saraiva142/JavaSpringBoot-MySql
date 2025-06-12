@@ -3,7 +3,6 @@ package joao.saraiva.agregadorinvestimentos.entity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -12,36 +11,40 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // Hibernate vai gerar o UUID
     private UUID userId;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true) // Geralmente username e email são únicos
     private String username;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true) // Geralmente username e email são únicos
     private String email;
 
     @Column(name = "password")
     private String password;
 
-    @CreationTimestamp
+    @CreationTimestamp // Hibernate preenche automaticamente na criação
     private Instant creationTimestamp;
 
-    @UpdateTimestamp
-    private  Instant updateTimestamp;
+    @UpdateTimestamp // Hibernate preenche automaticamente na atualização
+    private Instant updateTimestamp;
 
     public User() {
+        // Construtor padrão necessário para JPA
     }
 
-    public User(UUID userId, String username, String email, String password, Instant creationTimestamp, Instant updateTimestamp) {
-        this.userId = userId;
+    // Você pode ter um construtor para facilitar a criação, mas SEM o userId
+    public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.creationTimestamp = creationTimestamp;
-        this.updateTimestamp = updateTimestamp;
     }
 
+    // Remova o construtor que aceita UUID userId se você não o usa para carregar
+    // Se o tiver, ele não deve ser usado para criar novos usuários, apenas para carregar existentes.
+
+    // ... (Getters e Setters como antes)
+    // Seus getters e setters estão corretos
     public UUID getUserId() {
         return userId;
     }

@@ -5,8 +5,7 @@ import joao.saraiva.agregadorinvestimentos.entity.User;
 import joao.saraiva.agregadorinvestimentos.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.UUID;
+import java.util.UUID; // Ainda precisa para o retorno
 
 @Service
 public class UserService {
@@ -19,16 +18,18 @@ public class UserService {
 
     public UUID createUser(CreateUserDto createUserDto){
 
-        //DTO -> ENTITY
+        // DTO -> ENTITY
+        // Crie a entidade sem definir o userId.
+        // O Hibernate, devido ao @GeneratedValue, fará isso.
         var entity = new User(
-                UUID.randomUUID(),
                 createUserDto.username(),
                 createUserDto.email(),
-                createUserDto.password(),
-                Instant.now(),
-                null);
+                createUserDto.password());
 
-        var userSaved = userRepository.save(entity);
+        // Para criptografar a senha, adicione um PasswordEncoder aqui, ex:
+        // entity.setPassword(passwordEncoder.encode(createUserDto.password()));
+
+        var userSaved = userRepository.save(entity); // Hibernate agora entenderá que é um novo registro.
 
         return userSaved.getUserId();
     }

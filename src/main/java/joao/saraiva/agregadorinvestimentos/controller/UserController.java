@@ -22,7 +22,7 @@ public class UserController {
 
         var userId = userService.createUser(createUserDto);
 
-        return ResponseEntity.created(URI.create("/v1/users " + userId.toString())).build();
+        return ResponseEntity.created(URI.create("/v1/users" + userId.toString())).build();
     }
 
     @GetMapping("/{userId}")
