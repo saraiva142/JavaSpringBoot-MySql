@@ -33,6 +33,15 @@ public class User {
         // Construtor padrão necessário para JPA
     }
 
+    public User(UUID userId, String username, String email, String password, Instant creationTimestamp, Instant updateTimestamp) {
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.creationTimestamp = creationTimestamp;
+        this.updateTimestamp = updateTimestamp;
+    }
+
     // Você pode ter um construtor para facilitar a criação, mas SEM o userId
     public User(String username, String email, String password) {
         this.username = username;
