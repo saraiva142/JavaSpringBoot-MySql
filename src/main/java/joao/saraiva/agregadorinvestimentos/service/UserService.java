@@ -1,10 +1,13 @@
 package joao.saraiva.agregadorinvestimentos.service;
 
 import joao.saraiva.agregadorinvestimentos.controller.CreateUserDto;
+import joao.saraiva.agregadorinvestimentos.controller.UpdateUserDto;
 import joao.saraiva.agregadorinvestimentos.entity.User;
 import joao.saraiva.agregadorinvestimentos.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID; // Ainda precisa para o retorno
 
 @Service
@@ -33,4 +36,47 @@ public class UserService {
 
         return userSaved.getUserId();
     }
+
+    public Optional<User> getUserById(String userId) {
+
+        return userRepository.findById(UUID.fromString(userId));
+    }
+
+    public List<User> listUsers(){
+        return userRepository.findAll();
+    }
+
+    public void updateUserById(String userId,
+                               UpdateUserDto updateUserDto) {
+
+        var id = UUID.fromString(userId);
+        var userEntity = userRepository.findById(id);
+
+        if (userEntity.isPresent()) {
+            var user = userEntity.get();
+
+            if (updateUserDto.username() != null) {
+                user.setUsername(updateUserDto.username());
+            }
+            if (updateUserDto.password() != null) {
+                user.setPassword(updateUserDto.password());
+            }
+
+            userRepository.save(user);
+        }
+    }
+
+    public void deleteById(String userId) {
+
+        var id = UUID.fromString(userId);
+
+        var userExist = userRepository.existsById(id);
+
+        if (userExist) {
+            userRepository.deleteById(id);
+        }
+
+    }
+
+
 }
