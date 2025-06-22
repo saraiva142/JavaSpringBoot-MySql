@@ -1,6 +1,7 @@
 package joao.saraiva.agregadorinvestimentos.service;
 
 import joao.saraiva.agregadorinvestimentos.controller.CreateUserDto;
+import joao.saraiva.agregadorinvestimentos.controller.UpdateUserDto;
 import joao.saraiva.agregadorinvestimentos.entity.User;
 import joao.saraiva.agregadorinvestimentos.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -232,6 +233,167 @@ class UserServiceTest {
                     .existsById(uuidArgumentCaptor.getValue());
             verify(userRepository, times(0))
                     .deleteById(any());
+        }
+    }
+
+    @Nested
+    class updateUserById {
+
+        @Test
+        @DisplayName("Should update user by id when user exist and username and password is filled")
+        void shouldUpdateUserByIdWhenUserExistAndUsernameAndPasswordIsFilled() {
+
+            //Arrange
+            var updateUserDto = new UpdateUserDto(
+                    "newUsername",
+                    "newPassword"
+            );
+            var user = new User(
+                    UUID.randomUUID(),
+                    "username",
+                    "email@email.com",
+                    "password",
+                    Instant.now(),
+                    null
+            );
+            //mockar findById
+            doReturn(Optional.of(user))
+                    .when(userRepository)
+                    .findById(uuidArgumentCaptor.capture());
+            //mockar save
+            doReturn(user)
+                    .when(userRepository)
+                    .save(userArgumentCaptor.capture());
+
+            //Act
+            userService.updateUserById(user.getUserId().toString(), updateUserDto);
+
+            //Assert
+            assertEquals(user.getUserId(), uuidArgumentCaptor.getValue());
+
+            var userCaptured = userArgumentCaptor.getValue();
+
+            assertEquals(updateUserDto.username(), userCaptured.getUsername());
+            assertEquals(updateUserDto.password(), userCaptured.getPassword());
+
+            verify(userRepository, times(1))
+                    .findById(uuidArgumentCaptor.getValue());
+            verify(userRepository, times(1)).save(user);
+        }
+
+        @Test
+        @DisplayName("Should not update user when user NOT exist")
+        void shouldNotUpdateUserWhenUserNotExist() {
+
+            //Arrange
+            var updateUserDto = new UpdateUserDto(
+                    "newUsername",
+                    "newPassword"
+            );
+            var userId = UUID.randomUUID();
+            //mockar findById
+            doReturn(Optional.empty())
+                    .when(userRepository)
+                    .findById(uuidArgumentCaptor.capture());
+
+
+            //Act
+            userService.updateUserById(userId.toString(), updateUserDto);
+
+            //Assert
+            assertEquals(userId, uuidArgumentCaptor.getValue());
+
+            verify(userRepository, times(1))
+                    .findById(uuidArgumentCaptor.getValue());
+            //Como é senário negativo, não deve salvar nada, ou seja, o save não deve ser chamado
+            verify(userRepository, times(0)).save(any());
+        }
+
+        @Test
+        @DisplayName("Should update user by id when user exist and only username is filled")
+        void shouldUpdateUserByIdWhenUserExistAndOnlyUsernameIsFilled() {
+
+            //Arrange
+            var updateUserDto = new UpdateUserDto(
+                    "newUsername",
+                    null
+            );
+            var user = new User(
+                    UUID.randomUUID(),
+                    "username",
+                    "email@email.com",
+                    "password",
+                    Instant.now(),
+                    null
+            );
+
+            //mockar findById
+            doReturn(Optional.of(user))
+                    .when(userRepository)
+                    .findById(uuidArgumentCaptor.capture());
+            //mockar save
+            doReturn(user)
+                    .when(userRepository)
+                    .save(userArgumentCaptor.capture());
+
+            //Act
+            userService.updateUserById(user.getUserId().toString(), updateUserDto);
+
+            //Assert
+            assertEquals(user.getUserId(), uuidArgumentCaptor.getValue());
+
+            var userCaptured = userArgumentCaptor.getValue();
+            assertEquals(updateUserDto.username(), userCaptured.getUsername());
+            assertEquals(user.getPassword(), userCaptured.getPassword());
+            verify(userRepository, times(1))
+                    .findById(uuidArgumentCaptor.getValue());
+            verify(userRepository, times(1)).save(user);
+
+        }
+
+        @Test
+        @DisplayName("Should update user by id when user exist and only passwor is filled")
+        void shouldUpdateUserByIdWhenUserExistAndOnlyPasswordIsFilled() {
+
+            //Arrange
+            var updateUserDto = new UpdateUserDto(
+                    null,
+                    "newPassword"
+            );
+            var user = new User(
+                    UUID.randomUUID(),
+                    "username",
+                    "email@email.com",
+                    "password",
+                    Instant.now(),
+                    null
+            );
+
+            //mockar findById
+            doReturn(Optional.of(user))
+                    .when(userRepository)
+                    .findById(uuidArgumentCaptor.capture());
+            //mockar save
+            doReturn(user)
+                    .when(userRepository)
+                    .save(userArgumentCaptor.capture());
+
+            //Act
+            userService.updateUserById(user.getUserId().toString(), updateUserDto);
+
+            //Assert
+            assertEquals(user.getUserId(), uuidArgumentCaptor.getValue());
+
+            var userCaptured = userArgumentCaptor.getValue();
+
+            assertEquals(user.getUsername(), userCaptured.getUsername());
+            assertEquals(updateUserDto.password(), userCaptured.getPassword());
+
+            verify(userRepository, times(1))
+                    .findById(uuidArgumentCaptor.getValue());
+            verify(userRepository, times(1))
+                    .save(user);
+
         }
     }
 }
