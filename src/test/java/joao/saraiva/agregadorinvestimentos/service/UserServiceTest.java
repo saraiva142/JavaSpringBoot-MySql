@@ -64,6 +64,10 @@ class UserServiceTest {
                     Instant.now(),
                     null
             );
+//            "Quando alguém pedir para você guardar um usuário (save), "
+//            "me devolve esse user de exemplo que eu criei, e guarda"
+//            "numa caixinha transparente (userArgumentCaptor.capture()) "
+//            "o que foi que te pediram para guardar!"
             doReturn(user).when(userRepository).save(userArgumentCaptor.capture());
             var input = new CreateUserDto("username",
                                             "email@email.com",
@@ -86,6 +90,9 @@ class UserServiceTest {
         @DisplayName("Should throw exception when error occurs")
         void shouldThrowExceptionWhenErrorOccurs() {
             //Arrange
+
+//            "Quando alguém pedir para você guardar qualquer coisa (any()),
+//            ao invés de guardar, você vai quebrar (doThrow(new RuntimeException()))!"
             doThrow(new RuntimeException()).when(userRepository).save(any());
             var input = new CreateUserDto("username",
                     "email@email.com",
@@ -96,8 +103,6 @@ class UserServiceTest {
             //Act & Assert
             assertThrows(RuntimeException.class, () -> userService.createUser(input));
 
-//            //Assert
-//            assertNotNull(output);
         }
     }
 
@@ -117,6 +122,11 @@ class UserServiceTest {
                     Instant.now(),
                     null
             );
+
+            // "Quando alguém pedir para o userRepository encontrar
+            // um usuário pelo ID (findById), eu vou devolver ele
+            // enroladinho num papel (Optional.of(user)) e vou guardar
+            // numa caixinha o ID que foi usado para buscar."
             doReturn(Optional.of(user))
                     .when(userRepository)
                     .findById(uuidArgumentCaptor.capture());
@@ -125,8 +135,9 @@ class UserServiceTest {
             var output = userService.getUserById(user.getUserId().toString());
 
             //Assert
-            assertTrue(output.isPresent());
-            assertEquals(user.getUserId(), uuidArgumentCaptor.getValue());
+            assertTrue(output.isPresent()); // Como a função é Optional, devemos ver se ele retorna um True
+            assertEquals(user.getUserId(), uuidArgumentCaptor.getValue()); // Verifica se:
+            // "O ID que ele usou para buscar é o ID do nosso usuário de exemplo?"
 
         }
 
@@ -169,6 +180,8 @@ class UserServiceTest {
                     null
             );
             var outputList = List.of(user);
+            //Quando alguém pedir para o userRepository encontrar
+            //todos (findAll()), eu vou devolver essa lista que eu preparei
             doReturn(outputList)
                     .when(userRepository)
                     .findAll();
