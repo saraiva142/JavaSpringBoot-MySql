@@ -90,6 +90,24 @@ class UserControllerTest {
 
         }
 
+//        @Test
+//        @DisplayName("Should return error when create user fails")
+//        void createUserFail() throws Exception {
+//            //Arrange
+//            User user = new User();
+//
+//            when(userService.createUser(any(CreateUserDto.class)))
+//                    .thenThrow(new IllegalArgumentException("Invalid user data"));
+//
+//            //Act & Assert
+//            mockMvc.perform(post("/v1/users")
+//                    .contentType(MediaType.APPLICATION_JSON)
+//                    .content(objectMapper.writeValueAsString(user)))
+//                    .andExpect(status().isInternalServerError());
+//
+//            verify(userService, times(1)).createUser(any(CreateUserDto.class));
+//        }
+
     }
 
     @Test
