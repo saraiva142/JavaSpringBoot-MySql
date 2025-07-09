@@ -15,6 +15,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -159,12 +161,52 @@ class UserControllerTest {
             verify(userService, times(1)).getUserById(id.toString());
 
         }
-
-
     }
 
-    @Test
-    void listUsers() {
+    @Nested
+    class listUsers {
+
+        @Test
+        @DisplayName("Should return a users list with success")
+        void listUsersWithSuccess() throws Exception {
+            //Arrange
+            UUID id = UUID.randomUUID();
+
+            User user1 = new User();
+            user1.setUserId(id);
+            user1.setUsername("Username");
+            user1.setPassword("pass123");
+            user1.setEmail("email@email.com");
+            user1.setCreationTimestamp(Instant.now());
+            user1.setUpdateTimestamp(null);
+
+            User user2 = new User();
+            user2.setUserId(id);
+            user2.setUsername("Username 2");
+            user2.setPassword("password");
+            user2.setEmail("email@email.com");
+            user2.setCreationTimestamp(Instant.now());
+            user2.setUpdateTimestamp(null);
+
+            List<User> userList = Arrays.asList(user1, user2);
+
+            when(userService.listUsers()).thenReturn(userList);
+
+            //Act && Assert
+            mockMvc.perform(get("/v1/users")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].userId").value(user1.getUserId().toString()))
+                    .andExpect(jsonPath("$[1].userId").value(user2.getUserId().toString()))
+                    .andExpect(jsonPath("$[0].username").value(user1.getUsername()))
+                    .andExpect(jsonPath("$[1].username").value(user2.getUsername()));
+
+            assertNotNull(userList);
+            assertEquals(2, userList.size());
+            verify(userService, times(1)).listUsers();
+
+        }
+
     }
 
     @Test
