@@ -207,6 +207,24 @@ class UserControllerTest {
 
         }
 
+        @Test
+        @DisplayName("Should return empty list when are no have users")
+        void listUsersWhenListIsEmpty() throws Exception {
+            //Arrange
+            List<User> userList = Arrays.asList();
+
+            when(userService.listUsers()).thenReturn(userList);
+
+            //Act && Assert
+            mockMvc.perform(get("/v1/users")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
+            assertTrue(userList.isEmpty());
+            assertEquals(0, userList.size());
+            verify(userService, times(1)).listUsers();
+        }
+
     }
 
     @Test
