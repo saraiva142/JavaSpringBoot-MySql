@@ -15,11 +15,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -110,8 +112,38 @@ class UserControllerTest {
 
     }
 
-    @Test
-    void getUserById() {
+    @Nested
+    class getUserById {
+
+        @Test
+        @DisplayName("Should get a user by id successfully")
+        void getUserByIdWithSuccess() throws Exception {
+            //Arrange
+            UUID id = UUID.randomUUID();
+            User user = new User();
+            user.setUserId(id);
+            user.setUsername("Username");
+            user.setPassword("Password");
+            user.setEmail("first@email.com");
+            user.setCreationTimestamp(Instant.now());
+            user.setUpdateTimestamp(null);
+
+            when(userService.getUserById(id.toString())).thenReturn(Optional.of(user));
+
+            //Act & Assert
+            mockMvc.perform(get("/v1/users/{userId}", id.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(user))) //Não precisa mas ok
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.userId").value(id.toString()))
+                    .andExpect(jsonPath("$.username").value(user.getUsername()))
+                    .andExpect(jsonPath("$.email").value(user.getEmail()));
+
+            verify(userService, times(1)).getUserById(id.toString());
+
+        }
+
+
     }
 
     @Test
