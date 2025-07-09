@@ -143,6 +143,23 @@ class UserControllerTest {
 
         }
 
+        @Test
+        @DisplayName("Should return 404 not found when user is not found")
+        void getUserByIdWhenUserNotFound() throws Exception {
+            //Arrange
+            UUID id = UUID.randomUUID();
+
+            when(userService.getUserById(id.toString())).thenReturn(Optional.empty());
+
+            //Act && Assert
+            mockMvc.perform(get("/v1/users/{userId}", id.toString())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound());
+
+            verify(userService, times(1)).getUserById(id.toString());
+
+        }
+
 
     }
 
