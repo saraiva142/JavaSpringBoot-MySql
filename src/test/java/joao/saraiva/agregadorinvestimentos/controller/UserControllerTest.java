@@ -280,7 +280,23 @@ class UserControllerTest {
 
     }
 
-    @Test
-    void deleteById() {
+    @Nested
+    class deleteById {
+
+        @Test
+        @DisplayName("Should delete a user by id with success")
+        void deleteByIdWithSuccess() throws Exception {
+            //Arrange
+            UUID id = UUID.randomUUID();
+
+            doNothing().when(userService).deleteById(id.toString());
+
+            //Act && Assert
+            mockMvc.perform(delete("/v1/users/{id}", id.toString())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNoContent());
+            verify(userService, times(1)).deleteById(eq(id.toString()));
+        }
+
     }
 }
