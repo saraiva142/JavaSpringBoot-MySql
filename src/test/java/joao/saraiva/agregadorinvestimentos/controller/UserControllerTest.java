@@ -8,6 +8,7 @@ import org.apache.coyote.http11.upgrade.UpgradeServletOutputStream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -23,8 +24,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
@@ -227,8 +227,57 @@ class UserControllerTest {
 
     }
 
-    @Test
-    void updateUserById() {
+    @Nested
+    class updateUserById {
+
+        @Test
+        @DisplayName("Should update user by Id with success")
+        void updateUserByIdWithSuccess() throws Exception {
+            //Arrange
+            UUID id = UUID.randomUUID();
+
+            User userOld = new User();
+            userOld.setUserId(id);
+            userOld.setUsername("Username Antigo");
+            userOld.setEmail("antigo@email.com");
+            userOld.setPassword("passOld123");
+            userOld.setCreationTimestamp(Instant.now());
+            userOld.setUpdateTimestamp(null);
+
+            UpdateUserDto userUpdate = new UpdateUserDto(
+                    "Username Novo",
+                    "passNew123"
+            );
+//
+//            User userUpdate = new User();
+//            userUpdate.setUserId(userOld.getUserId());
+//            userUpdate.setUsername("Username Novo");
+//            userUpdate.setEmail("novo@email.com");
+//            userUpdate.setPassword("passNew123");
+//            userUpdate.setCreationTimestamp(Instant.now());
+//            userUpdate.setUpdateTimestamp(null);
+
+            User userNew = new User();
+            userNew.setUserId(id);
+            userNew.setUsername(userUpdate.username());
+            userNew.setEmail(userOld.getEmail());
+            userNew.setPassword(userUpdate.password());
+            userNew.setCreationTimestamp(userOld.getCreationTimestamp());
+            userNew.setUpdateTimestamp(Instant.now());
+
+            doNothing().when(userService).updateUserById(eq(id.toString()), any(UpdateUserDto.class));
+
+
+            //Act & Assert
+            mockMvc.perform(put("/v1/users/{id}", id.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(userUpdate)))
+                    .andExpect(status().isNoContent());
+
+            verify(userService, times(1)).updateUserById(eq(id.toString()), any(UpdateUserDto.class));
+
+        }
+
     }
 
     @Test
